@@ -9,12 +9,14 @@ const storeInfo = await fetchStoreInformation()
 const widget = new ListWidget()
 await createWidget()
 
+// used for debugging if script runs inside the app
 if (!config.runsInWidget) {
     await widget.presentSmall()
 }
 Script.setWidget(widget)
 Script.complete()
 
+// build the content of the widget
 async function createWidget() {
 
     const logoReq = new Request('https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Dm_Logo.svg/300px-Dm_Logo.svg.png')
@@ -89,6 +91,7 @@ async function createWidget() {
     shopStateText.font = Font.mediumSystemFont(11)
 }
 
+// fetches the amount of toilet paper packages
 async function fetchAmountOfPaper() {
     const url = 'https://products.dm.de/store-availability/DE/availability?dans=595420,708997,137425,28171,485698,799358,863567,452740,610544,846857,709006,452753,879536,452744,485695,853483,594080,504606,593761,525943,842480,535981,127048,524535&storeNumbers=' + storeId
     const req = new Request(url)
@@ -100,6 +103,7 @@ async function fetchAmountOfPaper() {
     return counter
 }
 
+// fetches information of the configured store, e.g. opening hours, address etc.
 async function fetchStoreInformation() {
     const url = 'https://store-data-service.services.dmtech.com/stores/item/de/' + storeId
     const req = new Request(url)
@@ -107,6 +111,7 @@ async function fetchStoreInformation() {
     return apiResult
 }
 
+// checks whether the store is currently open or closed
 function isInRange(value, range) {
     return value >= range[0] && value <= range[1];
 }
