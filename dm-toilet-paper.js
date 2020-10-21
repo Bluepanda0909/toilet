@@ -74,12 +74,6 @@ async function createWidget() {
     const range = ['$todaysOpeningHour', '$todaysClosingHour'];
     const isOpen = isInRange(currentTime, range)
 
-    /*
-    const opened = row2.addText(todaysOpeningHour + " bis " + todaysClosingHour + " Uhr")
-    opened.font = Font.regularSystemFont(11)
-    opened.textColor = Color.black()
-    */
-
     let shopStateText
     if (isOpen) {
         shopStateText = row2.addText('Geöffnet')
