@@ -76,14 +76,6 @@ async function createWidget() {
     const zipCity = row2.addText(storeInfo.address.zip + " " + storeInfo.address.city)
     zipCity.font = Font.regularSystemFont(11)
 
-    if (Device.isUsingDarkAppearance()) {
-      street.textColor = Color.white()
-      zipCity.textColor = Color.white()
-    } else {
-      street.textColor = Color.black()
-      zipCity.textColor = Color.black()
-    }
-
     let currentTime = new Date().toLocaleTimeString('de-DE', { hour: "numeric", minute: "numeric" })
     let currentDay = new Date().getDay()
     const todaysOpeningHour = storeInfo.openingHours[currentDay].timeRanges[0].opening
