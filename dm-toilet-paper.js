@@ -1,4 +1,7 @@
-let storeId = 386
+// Variables used by Scriptable.
+// These must be at the very top of the file. Do not edit.
+// icon-color: deep-blue; icon-glyph: magic;
+let storeId = 312
 let param = args.widgetParameter
 if (param != null && param.length > 0) {
     storeId = param
@@ -19,6 +22,7 @@ Script.complete()
 // build the content of the widget
 async function createWidget() {
 
+    widget.addSpacer(4)
     const logoReq = new Request('https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Dm_Logo.svg/300px-Dm_Logo.svg.png')
     const logoImg = await logoReq.loadImage()
 
@@ -27,19 +31,26 @@ async function createWidget() {
 
     const titleFontSize = 12
     const detailFontSize = 36
-
-    const wimg = widget.addImage(logoImg)
+    
+    const logoStack = widget.addStack()
+    logoStack.addSpacer(90)
+    const logoImageStack = logoStack.addStack()
+    logoStack.layoutHorizontally()
+    logoImageStack.backgroundColor = new Color("#ffffff", 0.9)
+    logoImageStack.cornerRadius = 8
+    const wimg = logoImageStack.addImage(logoImg)
     wimg.imageSize = new Size(40, 40)
     wimg.rightAlignImage()
     widget.addSpacer()
 
-    const iconReq = new Request('https://i.imgur.com/MoJUhoM.png')
+    const iconReq = new Request('https://i.imgur.com/Uv1qZGV.png')
     const icon = await iconReq.loadImage()
     let row = widget.addStack()
     row.layoutHorizontally()
+    row.addSpacer(2)
     const iconImg = row.addImage(icon)
-    iconImg.imageSize = new Size(40, 40)
-    row.addSpacer(12)
+    iconImg.imageSize = new Size(40,40)
+    row.addSpacer(13)
 
     let column = row.addStack()
     column.layoutVertically()
@@ -54,7 +65,7 @@ async function createWidget() {
     } else {
         packageCount.textColor = new Color("#00CD66")
     }
-    widget.addSpacer(10)
+    widget.addSpacer(4)
 
     const row2 = widget.addStack()
     row2.layoutVertically()
