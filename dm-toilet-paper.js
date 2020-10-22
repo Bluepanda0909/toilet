@@ -36,7 +36,7 @@ async function createWidget() {
     logoStack.addSpacer(90)
     const logoImageStack = logoStack.addStack()
     logoStack.layoutHorizontally()
-    logoImageStack.backgroundColor = new Color("#ffffff", 0.9)
+    logoImageStack.backgroundColor = new Color("#ffffff", 1.0)
     logoImageStack.cornerRadius = 8
     const wimg = logoImageStack.addImage(logoImg)
     wimg.imageSize = new Size(40, 40)
