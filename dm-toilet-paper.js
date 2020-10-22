@@ -1,4 +1,4 @@
-let storeId = 177
+let storeId = 386
 let param = args.widgetParameter
 if (param != null && param.length > 0) {
     storeId = param
@@ -61,11 +61,17 @@ async function createWidget() {
 
     const street = row2.addText(storeInfo.address.street)
     street.font = Font.regularSystemFont(11)
-    street.textColor = Color.black()
 
     const zipCity = row2.addText(storeInfo.address.zip + " " + storeInfo.address.city)
     zipCity.font = Font.regularSystemFont(11)
-    zipCity.textColor = Color.black()
+
+    if (Device.isUsingDarkAppearance()) {
+      street.textColor = Color.white()
+      zipCity.textColor = Color.white()
+    } else {
+      street.textColor = Color.black()
+      zipCity.textColor = Color.black()
+    }
 
     let currentTime = new Date().toLocaleTimeString('de-DE', { hour: "numeric", minute: "numeric" })
     let currentDay = new Date().getDay()
