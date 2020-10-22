@@ -1,15 +1,16 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
 // icon-color: deep-blue; icon-glyph: magic;
-let storeId = 312
+let storeId = 178
+let country
 let param = args.widgetParameter
 if (param != null && param.length > 0) {
     storeId = param
 }
 
-const storeCapacity = await fetchAmountOfPaper()
-const storeInfo = await fetchStoreInformation()
 const widget = new ListWidget()
+const storeInfo = await fetchStoreInformation()
+const storeCapacity = await fetchAmountOfPaper()
 await createWidget()
 
 // used for debugging if script runs inside the app
@@ -23,17 +24,14 @@ Script.complete()
 async function createWidget() {
 
     widget.addSpacer(4)
-    const logoReq = new Request('https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Dm_Logo.svg/300px-Dm_Logo.svg.png')
-    const logoImg = await logoReq.loadImage()
+    const logoImg = await getImage('dm-logo.png')
 
-    widget.setPadding(10,10,10,10)
-    widget.url = "https://www.dm.de/search?query=toilettenpapier&searchType=product"
-
+    widget.setPadding(10, 10, 10, 10)
     const titleFontSize = 12
     const detailFontSize = 36
-    
+
     const logoStack = widget.addStack()
-    logoStack.addSpacer(90)
+    logoStack.addSpacer(86)
     const logoImageStack = logoStack.addStack()
     logoStack.layoutHorizontally()
     logoImageStack.backgroundColor = new Color("#ffffff", 1.0)
@@ -43,20 +41,19 @@ async function createWidget() {
     wimg.rightAlignImage()
     widget.addSpacer()
 
-    const iconReq = new Request('https://i.imgur.com/Uv1qZGV.png')
-    const icon = await iconReq.loadImage()
+    const icon = await getImage('toilet-paper.png')
     let row = widget.addStack()
     row.layoutHorizontally()
     row.addSpacer(2)
     const iconImg = row.addImage(icon)
-    iconImg.imageSize = new Size(40,40)
+    iconImg.imageSize = new Size(40, 40)
     row.addSpacer(13)
 
     let column = row.addStack()
     column.layoutVertically()
 
     const paperText = column.addText("KLOPAPIER")
-    paperText.font = Font.mediumRoundedSystemFont(14)
+    paperText.font = Font.mediumRoundedSystemFont(13)
 
     const packageCount = column.addText(storeCapacity.toString())
     packageCount.font = Font.mediumRoundedSystemFont(22)
@@ -96,25 +93,87 @@ async function createWidget() {
 
 // fetches the amount of toilet paper packages
 async function fetchAmountOfPaper() {
-    const url = 'https://products.dm.de/store-availability/DE/availability?dans=595420,708997,137425,28171,485698,799358,863567,452740,610544,846857,709006,452753,879536,452744,485695,853483,594080,504606,593761,525943,842480,535981,127048,524535&storeNumbers=' + storeId
-    const req = new Request(url)
-    const apiResult = await req.loadJSON()
+    let url
     let counter = 0
-    for (var i in apiResult.storeAvailabilities) {
-        counter += apiResult.storeAvailabilities[i][0].stockLevel
+    if (country.toLowerCase() === 'at') {
+        // Austria
+        const array = ["156754", "180487", "194066", "188494", "194144", "273259", "170237", "232201", "170425", "283216", "205873", "205874", "249881", "184204"]
+        for (var i = 0; i < array.length; i++) {
+            let currentItem = array[i]
+            url = 'https://products.dm.de/store-availability/AT/products/dans/' + currentItem + '/stocklevel?storeNumbers=' + storeId
+            let req = new Request(url)
+            let apiResult = await req.loadJSON()
+            if (req.response.statusCode == 200) {
+                counter += apiResult.storeAvailability[0].stockLevel
+            }
+        }
+    } else {
+        // Germany
+        url = 'https://products.dm.de/store-availability/DE/availability?dans=595420,708997,137425,28171,485698,799358,863567,452740,610544,846857,709006,452753,879536,452744,485695,853483,594080,504606,593761,525943,842480,535981,127048,524535&storeNumbers=' + storeId
+        const req = new Request(url)
+        const apiResult = await req.loadJSON()
+        for (var i in apiResult.storeAvailabilities) {
+            counter += apiResult.storeAvailabilities[i][0].stockLevel
+        }
     }
     return counter
 }
 
 // fetches information of the configured store, e.g. opening hours, address etc.
 async function fetchStoreInformation() {
-    const url = 'https://store-data-service.services.dmtech.com/stores/item/de/' + storeId
-    const req = new Request(url)
-    const apiResult = await req.loadJSON()
+    let url = 'https://store-data-service.services.dmtech.com/stores/item/de/' + storeId
+    let req = new Request(url)
+    let apiResult = await req.loadString()
+    if (req.response.statusCode == 404) {
+        // use Austria
+        url = 'https://store-data-service.services.dmtech.com/stores/item/at/' + storeId
+        req = new Request(url)
+        apiResult = await req.loadJSON()
+        if (req.response.statusCode == 200) {
+            country = 'at'
+            widget.url = 'https://www.dm.at/search?query=toilettenpapier&searchType=product'
+        }
+    } else if (req.response.statusCode == 200) {
+        country = 'de'
+        widget.url = 'https://www.dm.de/search?query=toilettenpapier&searchType=product'
+        apiResult = JSON.parse(apiResult)
+    }
     return apiResult
 }
 
 // checks whether the store is currently open or closed
 function isInRange(value, range) {
     return value >= range[0] && value <= range[1];
+}
+
+// get images from local filestore or download them once
+async function getImage(image) {
+    let fm = FileManager.local()
+    let dir = fm.documentsDirectory()
+    let path = fm.joinPath(dir, image)
+    if (fm.fileExists(path)) {
+        return fm.readImage(path)
+    } else {
+        // download once
+        let imageUrl
+        switch (image) {
+            case 'dm-logo.png':
+                imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Dm_Logo.svg/300px-Dm_Logo.svg.png"
+                break
+            case 'toilet-paper.png':
+                imageUrl = "https://i.imgur.com/Uv1qZGV.png"
+                break
+            default:
+                console.log(`Sorry, couldn't find ${image}.`);
+        }
+        let iconImage = await loadImage(imageUrl)
+        fm.writeImage(path, iconImage)
+        return iconImage
+    }
+}
+
+// helper function to download an image from a given url
+async function loadImage(imgUrl) {
+    const req = new Request(imgUrl)
+    return await req.loadImage()
 }
