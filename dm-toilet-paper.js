@@ -72,8 +72,8 @@ async function createWidget() {
 
     let currentTime = new Date().toLocaleTimeString('de-DE', { hour: "numeric", minute: "numeric" })
     let currentDay = new Date().getDay()
-    const todaysOpeningHour = storeInfo.openingHours[currentDay].timeRanges[0].opening
-    const todaysClosingHour = storeInfo.openingHours[currentDay].timeRanges[0].closing
+    const todaysOpeningHour = storeInfo.openingHours[currentDay-1].timeRanges[0].opening
+    const todaysClosingHour = storeInfo.openingHours[currentDay-1].timeRanges[0].closing
     const range = [todaysOpeningHour, todaysClosingHour];
     const isOpen = isInRange(currentTime, range)
 
