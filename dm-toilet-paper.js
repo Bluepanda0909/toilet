@@ -72,10 +72,15 @@ async function createWidget() {
 
     let currentTime = new Date().toLocaleTimeString('de-DE', { hour: "numeric", minute: "numeric" })
     let currentDay = new Date().getDay()
-    const todaysOpeningHour = storeInfo.openingHours[currentDay-1].timeRanges[0].opening
-    const todaysClosingHour = storeInfo.openingHours[currentDay-1].timeRanges[0].closing
-    const range = [todaysOpeningHour, todaysClosingHour];
-    const isOpen = isInRange(currentTime, range)
+    let isOpen
+    if (currentDay > 0) {
+        const todaysOpeningHour = storeInfo.openingHours[currentDay-1].timeRanges[0].opening
+        const todaysClosingHour = storeInfo.openingHours[currentDay-1].timeRanges[0].closing
+        const range = [todaysOpeningHour, todaysClosingHour];
+        isOpen = isInRange(currentTime, range)
+    } else {
+        isOpen = false
+    }
 
     let shopStateText
     if (isOpen) {
