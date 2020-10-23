@@ -1,8 +1,5 @@
-// Variables used by Scriptable.
-// These must be at the very top of the file. Do not edit.
-// icon-color: deep-blue; icon-glyph: magic;
-let storeId = 178
-let country
+let country = 'de' // replace with 'at' for shops in Austria
+let storeId = 251
 let param = args.widgetParameter
 if (param != null && param.length > 0) {
     storeId = param
@@ -121,23 +118,16 @@ async function fetchAmountOfPaper() {
 
 // fetches information of the configured store, e.g. opening hours, address etc.
 async function fetchStoreInformation() {
-    let url = 'https://store-data-service.services.dmtech.com/stores/item/de/' + storeId
-    let req = new Request(url)
-    let apiResult = await req.loadString()
-    if (req.response.statusCode == 404) {
-        // use Austria
+    let url
+    if (country.toLowerCase() === 'at') {
         url = 'https://store-data-service.services.dmtech.com/stores/item/at/' + storeId
-        req = new Request(url)
-        apiResult = await req.loadJSON()
-        if (req.response.statusCode == 200) {
-            country = 'at'
-            widget.url = 'https://www.dm.at/search?query=toilettenpapier&searchType=product'
-        }
-    } else if (req.response.statusCode == 200) {
-        country = 'de'
+        widget.url = 'https://www.dm.at/search?query=toilettenpapier&searchType=product'
+    } else {
+        url = 'https://store-data-service.services.dmtech.com/stores/item/de/' + storeId
         widget.url = 'https://www.dm.de/search?query=toilettenpapier&searchType=product'
-        apiResult = JSON.parse(apiResult)
     }
+    let req = new Request(url)
+    let apiResult = await req.loadJSON()
     return apiResult
 }
 
