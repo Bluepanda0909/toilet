@@ -172,3 +172,5 @@ async function loadImage(imgUrl) {
     const req = new Request(imgUrl)
     return await req.loadImage()
 }
+
+// end of script
