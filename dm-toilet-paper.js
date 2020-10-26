@@ -173,4 +173,7 @@ async function loadImage(imgUrl) {
     return await req.loadImage()
 }
 
+
+
 // end of script
+// bitte bis zum Ende kopieren
